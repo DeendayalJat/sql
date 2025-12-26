@@ -1,0 +1,22 @@
+use sakila;
+select * from actor; -- actor_id=primarykey
+describe actor; -- actorid ==foriegn key
+select * from film_actor;
+describe film_actor;
+select count( distinct actor_id) from actor;
+select count( distinct actor_id) , count(distinct film_id) from film_actor; 
+select a.first_name,a.actor_id from actor as a
+join film_actor as fa
+where a.actor_id=fa.film_id;
+select * from film;
+describe film;
+select fa.film_id,fa.actor_id,f.film_id,f.title from film_actor as fa
+join film as f
+where fa.film_id=f.film_id;
+select * from film;
+select * from film_actor;
+select * from actor;
+select f.film_id,f.title from film as f
+join film_actor as fi
+join actor as a
+where f.film_id=fi.film_id and fi.actor_id=a.actor_id;
