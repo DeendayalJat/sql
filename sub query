@@ -1,0 +1,52 @@
+-- SUB QUERRY - INNER QUERY - NESTED QUERY
+-- QUERRY WITHIN A QUERRY
+-- ACCESS DATA BASED ON CONDITION
+-- FILTER THE DATA
+-- FILTER DATA ON DYNA,MIC CONDITION
+use sakila;
+show tables;
+select * from payment;
+select amount from payment where payment_id=5;
+
+select * from payment where amount=0.99;
+-- nested ()<= nested querry
+select * from payment where amount =(select amount from payment where payment_id=5);
+-- get payment id and amount where amount isnot equal to the amount id of 23
+select amount from payment where payment_id=23;
+select payment_id , amount from payment where payment_id!=23;
+select payment_id,amount from payment where amount !=(select amount from payment where payment_id=23);
+-- payment id name,customer id or payment date where month of payment should be same as payment id =6
+select month(payment_date) as m from payment where payment_id=6;
+
+select payment_id,customer_id,payment_date,amount from payment 
+where 
+month(payment_date)=(select month(payment_date)  from payment where payment_id=6);
+-- gat all column from payment where staff serving the customer should be same as of payment id =7
+select staff_id from payment where payment_id=7;
+select * from payment where staff_id=1;
+select * from payment  
+where staff_id=(select staff_id from payment where payment_id=7);
+-- get all the payment information where the amount is same as of highest amount from payment table
+select max(amount) from payment;
+select * from payment 
+where amount = (select max(amount) from payment);
+-- get amount and total no of payment done for each amount only for those payement is less than the rental id 1725
+select amount  from payment where rental_id=1725;
+select * from payment where amount < 4.99;
+select amount, count(amount) from payment
+where amount <=(select amount  from payment where rental_id=1725) group by amount;
+-- get the month and total amount spent whose month of payment < customer id 1 and 3
+select month(payment_date) from payment where customer_id=1 and payment_id=3;
+-- single row subquerry
+select month(payment_date),sum(amount) from payment 
+where month(payment_date)>(select month(payment_date) from payment where customer_id=1 and payment_id=3)
+group by month(payment_date);
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
