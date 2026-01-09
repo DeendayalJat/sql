@@ -1,0 +1,17 @@
+create database dd;
+use dd;
+create table cus( cid int, name varchar(23));
+insert into cus values(  1,"raj"),(2,"ram");
+create table orde(oid int,city varchar(23)); 
+insert into orde values(001,"jpr"),(002,"ajr");
+describe cus;
+alter table cus add primary key(cid);
+drop  table cus;
+drop table  orde;
+ create table cus( cid int primary key, name varchar(23));
+ insert into cus values(  1,"raj"),(2,"ram");
+create table orde(oid int primary key,city varchar(23),cid int, foreign key (cid) references cus(cid)); 
+insert into orde values(001,"jpr",1),(002,"ajr",2);
+insert into orde values(005,"jpr",1),(006,"ajr",2);
+describe cus;
+describe orde;
