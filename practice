@@ -75,6 +75,55 @@ from events e
 join ticket_sales ts
 on e.event_id = ts.event_id
 group by e.city,sale_month order by e.city;
-
+SELECT e.city,ts.ticket_type,sum(ts.qty) from events e
+join ticket_sales ts
+on e.event_id = ts.event_id  group by e.city,ts.ticket_type
+order by e.city,ts.ticket_type;
+SELECT *
+FROM ticket_sales
+WHERE sale_date = (
+  SELECT MAX(sale_date)
+  FROM ticket_sales
+);
+select sale_id,event_id,qty*price_per_ticket as revenue from ticket_sales
+where (qty*price_per_ticket)>
+(select avg(qty*price_per_ticket) from ticket_sales);
+select distinct
+  e.event_id,
+  e.event_name
+FROM events e
+JOIN ticket_sales ts
+  ON e.event_id = ts.event_id
+WHERE ts.ticket_type = 'VIP';
+select e.event_id,e.event_name,e.city from events e
+where e.city in ( select distinct e2.city from events e2
+ join  ticket_sales ts on  e2.event_id = ts.event_id
+WHERE ts.ticket_type = 'VIP'  );
+SELECT DISTINCT
+  e.event_id,
+  e.event_name,
+  e.city
+FROM events e
+JOIN ticket_sales ts
+  ON e.event_id = ts.event_id
+WHERE  month(sale_date)=2;
+-- ts.sale_date >= '2025-02-01'
+ --  AND ts.sale_date <  '2025-03-01'
+SELECT *
+FROM ticket_sales ts
+WHERE price_per_ticket = (
+  SELECT MAX(price_per_ticket)
+  FROM ticket_sales
+  WHERE event_id = ts.event_id
+)
+ORDER BY event_id;
+select month( ts.sale_date) as m ,sum(qty),sum(qty*price_per_ticket) as t from ticket_sales ts
+group by m having t>=10000;
+select month(sale_date) as m , count(*) as c from ticket_sales
+group by m having c>=3;
+select month(sale_date) as m, avg(qty*price_per_ticket) as average_salary from ticket_sales
+group by m having average_salary >4000;
+select month(sale_date) as m, ticket_type, sum(qty*price_per_ticket) as r from ticket_sales
+group by m ,ticket_type having r >=5000;
 
 
