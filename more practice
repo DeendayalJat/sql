@@ -33,3 +33,265 @@ INSERT INTO trips (trip_id, driver_id, trip_date, distance_km, fare, rating) VAL
 (110, 1, '2025-11-04', 18.0, 620, 4.9);
 SELECT * FROM drivers ORDER BY driver_id;
 SELECT * FROM trips ORDER BY trip_id;
+-----------------------------------
+select trip_date,count(*) as total_trip,sum(fare),avg( rating) from trips group by trip_date;
+select d.base_area,count(*) as trips ,sum(t.fare) as total_fair,avg(t.distance_km) as avg_distance from drivers d
+join trips t
+on d.driver_id=t.driver_id
+group by d.base_area
+order by d.base_area;
+SELECT
+  CASE
+    WHEN rating >= 4.8 THEN 'High'
+    ELSE 'Other'
+  END AS rating_bucket,
+  COUNT(*) AS trip_count
+FROM trips
+GROUP BY
+  rating_bucket;
+select trip_date,sum(fare) as f from trips group by trip_date having  f >=800;
+select d.base_area,avg(t.rating) as avg_rating from drivers d 
+left join trips t
+on d.driver_id=t.driver_id
+ group by d.base_area having avg_rating>=4.7;
+ SELECT *
+FROM trips
+WHERE fare >
+  (SELECT AVG(fare) FROM trips)
+ORDER BY fare;
+SELECT *
+FROM drivers
+WHERE driver_id IN (
+  SELECT driver_id
+  FROM trips
+  WHERE rating = 4.9
+);
+SELECT
+  d.driver_id,
+  d.driver_name,
+  dt.total_fare
+FROM drivers d
+JOIN (
+    SELECT
+      driver_id,
+      SUM(fare) AS total_fare
+    FROM trips
+    GROUP BY driver_id
+) dt
+  ON d.driver_id = dt.driver_id
+WHERE dt.total_fare >
+(
+    SELECT AVG(total_fare)
+    FROM (
+        SELECT SUM(fare) AS total_fare
+        FROM trips
+        GROUP BY driver_id
+    ) avg_tbl
+);
+SELECT t.*
+FROM trips t
+JOIN (
+  SELECT driver_id, MAX(trip_date) AS latest_date
+  FROM trips
+  GROUP BY driver_id
+) x
+  ON t.driver_id = x.driver_id
+ AND t.trip_date = x.latest_date
+ORDER BY t.driver_id;
+SELECT
+  driver_id,
+  trip_id,
+  trip_date,
+  fare,
+  ROW_NUMBER() OVER (
+    PARTITION BY driver_id
+    ORDER BY trip_date, trip_id
+  ) AS trip_row_num
+FROM trips
+ORDER BY driver_id, trip_row_num;
+SELECT
+  driver_id,
+  trip_id,
+  trip_date,
+  fare,
+  SUM(fare) OVER (
+    PARTITION BY driver_id
+    ORDER BY trip_date, trip_id
+  ) AS running_total_fare
+FROM trips
+ORDER BY driver_id, trip_date, trip_id;
+SELECT
+  driver_id,
+  trip_id,
+  fare,
+  RANK() OVER (
+    PARTITION BY driver_id
+    ORDER BY fare DESC
+  ) AS fare_rank
+FROM trips
+ORDER BY driver_id, fare_rank;
+SELECT
+  driver_id,
+  trip_id,
+  fare,
+  AVG(fare) OVER (PARTITION BY driver_id) AS driver_avg_fare,
+  fare - AVG(fare) OVER (PARTITION BY driver_id) AS fare_minus_driver_avg
+FROM trips
+ORDER BY driver_id, trip_id;
+SELECT
+  driver_id,
+  trip_id,
+  trip_date,
+  fare,
+  LAG(fare) OVER (
+    PARTITION BY driver_id
+    ORDER BY trip_date, trip_id
+  ) AS prev_trip_fare
+FROM trips
+ORDER BY driver_id, trip_date, trip_id;
+--------------____________________________________________________________---------------------
+********************QUESTIONS*********************************
+driver_id driver_name base_area
+1 Asha Indiranagar
+2 Ravi Koramangala
+3 Meera Whitefield
+4 Kabir HSR Layout
+
+Trips
+trip_id driver_id trip_date distance_km fare rating
+101 1 2025-11-01 12.0 350 4.8
+102 1 2025-11-02 5.5 180 4.6
+103 2 2025-11-01 8.0 260 4.9
+104 2 2025-11-03 15.0 500 4.7
+105 3 2025-11-02 3.0 120 4.2
+106 3 2025-11-04 22.0 780 4.9
+107 4 2025-11-01 6.0 210 4.5
+108 4 2025-11-03 9.0 300 4.4
+109 4 2025-11-04 4.0 150 4.8
+110 1 2025-11-04 18.0 620 4.9
+
+Question: For each trip_date, show number of trips, total fare, and average rating. trip_date trips_count total_fare avg_rating
+2025-11-01 3 820 4.733333
+2025-11-02 2 300 4.400000
+2025-11-03 2 800 4.550000
+2025-11-04 3 1550 4.866667
+
+Question: By base_area, show total trips, total fare, and average distance. base_area trips total_fare avg_distance
+HSR Layout 3 660 6.333333
+Indiranagar 3 1150 11.833333
+Koramangala 2 760 11.500000
+Whitefield 2 900 12.500000
+
+Rating buckets count (>=4.8 as “High”, else “Other”)
+rating_bucket trips
+High 5
+Other 5
+
+Days where total fare >= 800 (GROUP BY + HAVING)
+trip_date total_fare
+2025-11-01 820
+2025-11-03 800
+2025-11-04 1550
+
+Base-area average rating, only areas with avg rating >= 4.7 (HAVING)
+base_area avg_rating
+Indiranagar 4.766667
+Koramangala 4.800000
+Whitefield 4.550000
+
+Trips with fare greater than the overall average fare (single-row subquery)
+trip_id driver_id fare
+101 1 350
+104 2 500
+106 3 780
+110 1 620
+
+Drivers who have at least one trip rated 4.9 (multi-row IN subquery)
+driver_id driver_name
+1 Asha
+2 Ravi
+3 Meera
+
+Drivers whose total fare is greater than the average total fare per driver
+Hint: (subquery on aggregated derived table) Hard level
+driver_id driver_name total_fare
+1 Asha 1150
+3 Meera 900
+
+Latest trip per driver
+driver_id trip_id trip_date fare
+1 110 2025-11-04 620
+2 104 2025-11-03 500
+3 106 2025-11-04 780
+4 109 2025-11-04 150
+
+Row number of trips per driver ordered by date (then trip_id)
+driver_id trip_id trip_date rn
+1 101 2025-11-01 1
+1 102 2025-11-02 2
+1 110 2025-11-04 3
+2 103 2025-11-01 1
+2 104 2025-11-03 2
+3 105 2025-11-02 1
+3 106 2025-11-04 2
+4 107 2025-11-01 1
+4 108 2025-11-03 2
+4 109 2025-11-04 3
+
+Running total fare per driver over time
+driver_id trip_id trip_date fare running_fare
+1 101 2025-11-01 350 350
+
+driver_id trip_id trip_date fare running_fare
+1 102 2025-11-02 180 530
+1 110 2025-11-04 620 1150
+2 103 2025-11-01 260 260
+2 104 2025-11-03 500 760
+3 105 2025-11-02 120 120
+3 106 2025-11-04 780 900
+4 107 2025-11-01 210 210
+4 108 2025-11-03 300 510
+4 109 2025-11-04 150 660
+
+Rank trips by fare within each driver (highest fare rank 1)
+driver_id trip_id fare fare_rank
+1 110 620 1
+1 101 350 2
+1 102 180 3
+2 104 500 1
+2 103 260 2
+3 106 780 1
+3 105 120 2
+4 108 300 1
+4 107 210 2
+4 109 150 3
+
+Show each trip’s fare minus the driver’s average fare (window AVG)
+driver_id trip_id fare diff_from_avg
+1 101 350 -33.333
+1 102 180 -203.333
+1 110 620 236.667
+2 103 260 -120.000
+2 104 500 120.000
+3 105 120 -330.000
+3 106 780 330.000
+
+driver_id trip_id fare diff_from_avg
+4 107 210 -10.000
+4 108 300 80.000
+4 109 150 -70.000
+
+For each driver, show the previous trip’s fare (LAG) ordered by date
+driver_id trip_id trip_date fare prev_fare
+1 101 2025-11-01 350 NULL
+1 102 2025-11-02 180 350
+1 110 2025-11-04 620 180
+2 103 2025-11-01 260 NULL
+2 104 2025-11-03 500 260
+3 105 2025-11-02 120 NULL
+3 106 2025-11-04 780 120
+4 107 2025-11-01 210 NULL
+4 108 2025-11-03 300 210
+4 109 2025-11-04 150 300
+______**************_____________________
+
