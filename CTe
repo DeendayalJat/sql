@@ -1,0 +1,21 @@
+
+USE dd;
+-- cte -> common table expression
+-- tempory name for sql
+-- store data temporary and make querry readable
+-- ; is the termination point
+with copy_cte as (select * from sakila.actor)
+select * from copy_cte;
+select * from copy_cte;
+with cte as (select * from sakila.payment)
+-- select * from cte
+-- select month(payment_date),count(*) from cte group by month(payment_date)
+ select *,dense_rank() over(order by amount desc) as ranking from cte;
+ with cte1 as (select *,dense_rank() over(order by amount desc) as ranking from sakila.payment)
+ select * from cte1 where ranking = 2;
+ with cte1 as (select *,dense_rank() over( partition by customer_id order by amount desc) as ranking from sakila.payment)
+select * from cte1 where ranking = 2; -- second highest amount for each customer
+-- with cte as ( select department as dept, avg(salary) as deptsalary from employee group by department)
+-- select emo_id,emp_name,department,salary,dept,deptsalary from employee as execute 
+-- join cte cte where e.department=cte.dept
+-- and salary > deptsalary;
