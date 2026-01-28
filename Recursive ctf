@@ -1,0 +1,43 @@
+-- RECURSIVE CTE
+ select actor_id,first_name from sakila.actor where actor_id between 1 and 4
+ union
+ select actor_id,first_name from sakila.actor where actor_id between 3 and 5;
+ select actor_id,first_name from sakila.actor where actor_id between 1 and 4
+ union all
+ select actor_id,first_name from sakila.actor where actor_id between 3 and 5;
+ with  recursive cte as 
+ (select 10 as n-- assigning
+ union all
+ select n+1 from cte -- cte call
+ where n <16 -- termininating
+ )
+ select * from cte;
+ -- employee hierarchy
+ 
+create table employees ( employee_id int primary key,
+name varchar(50), manager_id int);
+insert into  employees (employee_id,name,manager_id) values
+(1,'alice',null),-- ceo
+(2,'bob',1),-- report to alice
+(3,'deb',2),-- bob
+(4,'mob',2),-- bob
+(5,'eve',3);-- deb
+select * from employees;
+with recursive cte as (
+select employee_id,name,name  as hierarchy_path from employees where manager_id is null 
+union all
+select e.employee_id,e.name as hierarchy_path,concat(name ,'->',hierarchy_path ) from employees as e
+join cte where e.manager_id= cte.employee_id and e.manger_id <5)
+select * from cte;
+with recursive xyz as (
+select employee_id,name,name as hierarchy_path from employees where manager_id is null
+union all
+select e.employee_id,e.name,concat(name ,'->',hierarchy_path ) from employees as e
+join xyz where e.manager_id = xyz.employee_id and e.employee_id < 3
+ )
+select * from xyz;
+with recursive cte as(
+select employee_id ,name ,name as level_of_job from employees where manager_id  is null
+union all 
+select e.employee_id,e.name,concat(name,'->',level_of_job))
+ 
