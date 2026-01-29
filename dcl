@@ -1,0 +1,3 @@
+ -- dcl : Data control Language
+ -- Permission which user can accessibility 
+ -- Authentication and authorization
