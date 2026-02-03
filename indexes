@@ -12,3 +12,7 @@ select * from test100;
 -- Types -> Clustured and non clustered index
 -- one clustered column in one table
 -- 
+-- non clustered index creating
+create index id_1 on test100(actor_id);
+show indexes from  test100;
+explain select * from test100 where actor_id=5;
