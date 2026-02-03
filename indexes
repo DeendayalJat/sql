@@ -1,0 +1,14 @@
+-- index -> optmize sql querry
+use sakila;
+use dd;
+create table test100 as select actor_id,first_name from sakila.actor where actor_id between 1 and 10;
+desc test100; -- no primarykey
+insert into test100 values(14,'a'),(13,'b'),(11,'k'),(12,'l');
+alter table test100 add primary key(actor_id); -- making primary key
+explain select * from test100 where actor_id=5;
+select * from test100;
+-- INDEXES 
+-- Like a data structure used to access data faster way
+-- Types -> Clustured and non clustered index
+-- one clustered column in one table
+-- 
