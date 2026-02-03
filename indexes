@@ -16,3 +16,22 @@ select * from test100;
 create index id_1 on test100(actor_id);
 show indexes from  test100;
 explain select * from test100 where actor_id=5;
+-- insert into test100 value(12,'ambuja'); for index(non clustered)
+-- -- explain select * from test100 where actor_id=12;
+drop index  id_1 on test100;
+-- multicolumn index composite
+create index indx_composite on test100(actor_id,first_name); -- sequence of columnn matters
+show index from test100;
+explain select * from test100 where first_name='k'; -- filter ffrom 14 rows
+explain select * from test100 where actor_id >3 and first_name='k';
+explain select * from test100 where actor_id >6;
+insert into test100 values(18,'JOHI'),(19,'JOHLLLLI'),(21,'johOMG'),(20,'johky'),(22,'Betteys');
+drop index indx_composite on test100;
+alter table  test100  drop primary key; -- deleteing all indexes
+show index  from test100;
+create index i on test100(first_name(3));
+show index  from test100;
+explain select * from test100 WHERE first_name = 'johnny'; -- 5
+explain select * from test100 WHERE first_name = 'betnr';-- 2
+explain select * from test100 WHERE first_name = 'joh%'; -- partial index(subset)
+
