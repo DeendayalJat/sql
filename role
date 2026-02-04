@@ -1,0 +1,9 @@
+-- create role role_name;
+-- grant select , delete on database.table role_name;
+-- grant role_name to databASE
+-- question role create , grant, check permission
+create role myrole;
+grant select on ab to  myrole;
+grant  myrole to regex;
+-- revoke rolename from  user
+-- drop role rolename
