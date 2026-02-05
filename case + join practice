@@ -1,0 +1,75 @@
+use sakila;
+show tables;
+select * from customer;
+select first_name,active,
+case
+when active=1 then 'Active'
+when active=2 then 'Inactive'
+end
+from customer;
+SELECT 
+    SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) AS ActiveCount,
+    SUM(CASE WHEN active = 2 THEN 1 ELSE 0 END) AS InactiveCount
+FROM customer;
+select * from film;
+select rating,count(*) as total from film group by rating;
+select rating,count(*) as total,
+case when count(*) <200 then 'low count'
+when count(*) between 200 and 300 then 'medium spend'
+else 'high spend'
+end as spend
+from film group by 1;
+select * from payment;
+select * from customer;
+SELECT customer.customer_id,CONCAT(customer.first_name, ' ', customer.last_name) AS customer_name,
+SUM(payment.amount) AS total_payment,
+    CASE 
+        WHEN SUM(payment.amount) < 50 THEN 'Low'
+        WHEN SUM(payment.amount) BETWEEN 50 AND 100 THEN 'Medium'
+        WHEN SUM(payment.amount) > 100 THEN 'High'
+    END AS spend_level
+FROM customer JOIN payment ON customer.customer_id = payment.customer_id
+GROUP BY customer.customer_id;
+select * from film;
+select * from inventory;
+SELECT  * FROM rental ;
+select f.title as title, COUNT(r.rental_id) AS total_rental
+FROM film f
+JOIN inventory i 
+    ON f.film_id = i.film_id
+LEFT JOIN rental r 
+    ON i.inventory_id = r.inventory_id
+group by f.film_id, f.title
+order by total_rental desc;
+select concat(c1.first_name,c1.last_name) as c1,concat(c2.first_name,c2.last_name) as c2 ,c1.store_id from customer c1
+join customer c2  on c1.store_id =c2.store_id
+ AND c1.customer_id != c2.customer_id;
+ select c.customer_id,concat(first_name,last_name) as customer_name,sum(p.amount) as t_amount from customer c
+ join payment p 
+ on c.customer_id=p.customer_id
+ group by 1
+ having sum(p.amount) > (
+ select avg(pay) from (select sum(amount) as pay from payment group by customer_id) as t );
+SELECT 
+    f.film_id,
+    f.title,
+    COUNT(r.rental_id) AS rental_film
+FROM film f
+JOIN inventory i 
+    ON f.film_id = i.film_id
+LEFT JOIN rental r 
+    ON i.inventory_id = r.inventory_id
+GROUP BY f.film_id, f.title
+HAVING COUNT(r.rental_id) >
+(
+    SELECT AVG(film_rentals)
+    FROM (
+        SELECT COUNT(r2.rental_id) AS film_rentals
+        FROM film f2
+        JOIN inventory i2 
+            ON f2.film_id = i2.film_id
+        LEFT JOIN rental r2 
+            ON i2.inventory_id = r2.inventory_id
+        GROUP BY f2.film_id
+    ) AS avg_data
+);
