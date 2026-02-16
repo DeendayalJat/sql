@@ -1,0 +1,51 @@
+-- NUMBER int aND  decimal 
+-- tinyint smallint  mediumint int bigint
+-- 1 2 3 4 8
+use dd;
+create table dat (salary tinyint);
+insert into dat values(123);
+-- float and double
+create table dat2( salary float, price double);
+insert into dat2 values(100.627123,671.76393);
+-- string char vs varchar
+-- fixed size chararcter -__ variable length character
+create table dat3(name varchar(20), gender char(20));
+insert into dat3 values('tushar','male'),('deepak','male');
+insert into dat3 values('raj        ','male        ');
+select * from dat3;
+select char_length(name),char_length(gender) from dat3; -- char truncate widespaces from last and varchar consist all widespace upto its length
+-- ddl 
+-- create. drop , alter
+create table d(col int);
+-- create table using select select(CTAS)
+CREATE table ac as
+select first_name,last_name from  sakila.actor;
+select * from ac;
+-- drop-- structure and data is deleted
+drop table ac;
+select* from ac;
+CREATE table ac as
+select first_name as f,last_name as l from  sakila.actor where actor_id between 10 and 14;
+select* from ac;
+-- alter make changes in structure
+-- alter 
+alter table ac add column salary int;
+select* from ac;
+alter table ac add constraint reference primary key(f);
+describe ac;
+alter table ac drop l;-- column drop
+desc ac;
+alter table ac rename  column salary to new_salary;
+select* from ac;
+-- dml 
+-- truncate , insert , update
+-- update set col=val
+-- set SQL_SAFE_UPDATE=0;
+-- edit from preference
+update ac set new_salary=900;
+update ac set new_salary=888 where f='UMA';
+
+
+
+
+
